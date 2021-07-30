@@ -1,0 +1,144 @@
+<head>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;1,300&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="css/ionicons.min.css" />
+  <style>
+    body {
+      font-family: "Lato", "Ariel", sans-serif;
+      font-weight: 400;
+      background-color: black;
+      overflow: hidden;
+    }
+    h3,
+    p {
+      margin: 0px;
+      padding: 0px;
+    }
+    #section {
+      width: 600px;
+      display: flex;
+      background-color: #382424;
+      flex-flow: column wrap;
+      margin: 30vh auto;
+
+      border-radius: 10px;
+    }
+    #query {
+      border: none;
+    }
+    #charDiv {
+      max-height: 350px;
+      overflow-y: scroll;
+      padding: 0px 20px;
+      scrollbar-width: thin;
+      /* border-top: 1px solid #808080; */
+    }
+    #eachSpace {
+      display: flex;
+      justify-content: space-between;
+      height: 70px;
+      padding: 10px;
+      color: #f2f2f2;
+    }
+    #inputBox {
+      display: flex;
+      padding: 10px;
+      margin: 10px;
+    }
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: grey;
+    }
+  </style>
+</head>
+<body>
+  <div id="section">
+    <div id="inputBox">
+      <input
+        type="text"
+        id="query"
+        placeholder="Search Charcters"
+        style="
+          flex: 1;
+          padding: 0px 15px;
+          outline: 0;
+          background-color: #382424;
+          color: #f2f2f2;
+          font-size: 22px;
+        "
+        oninput="find()"
+      />
+      <button
+        style="font-size: 30px; border-radius: 100%; background-color: yellow"
+      >
+        <i class="ion-ios7-search-strong"></i>
+      </button>
+    </div>
+    <div id="charDiv"></div>
+  </div>
+</body>
+<script>
+  let charDiv = document.getElementById("charDiv");
+  let timerId;
+  async function findChar() {
+    let query = document.getElementById("query").value;
+    if (query.length <= 1) {
+      return false;
+    }
+    let res = await fetch(`https://swapi.dev/api/people/?search=${query}`);
+    let data = await res.json();
+    let { results } = data;
+    return results;
+  }
+
+  async function find() {
+    if (timerId) return false;
+
+    timerId = setTimeout(function () {
+      main();
+      timerId = null;
+    }, 500);
+  }
+
+  async function main() {
+    let charcters = await findChar();
+    appendElement(charcters);
+    borderBottom();
+    console.log(charcters);
+  }
+  function appendElement(d) {
+    charDiv.innerHTML = null;
+    d.forEach(({ birth_year, gender, name }) => {
+      let eachSpaceDiv = document.createElement("div");
+      eachSpaceDiv.setAttribute("id", "eachSpace");
+
+      let div = document.createElement("div");
+      let h3 = document.createElement("h3");
+      h3.innerHTML = name;
+      h3.style.marginBottom = "10px";
+      let pBirth = document.createElement("p");
+      pBirth.innerHTML = birth_year;
+      div.append(h3, pBirth);
+
+      let pGender = document.createElement("p");
+      pGender.innerHTML = gender;
+
+      eachSpaceDiv.append(div, pGender);
+      charDiv.append(eachSpaceDiv);
+    });
+  }
+  function borderBottom() {
+    let eachSpaceDiv = document.getElementById("eachSpace");
+    if (eachSpaceDiv) {
+      charDiv.style.borderTopWidth = "1px";
+      charDiv.style.borderTopStyle = "solid";
+      charDiv.style.borderTopColor = "#808080";
+      charDiv.style.paddingTop = "20px";
+      console.log("yes");
+    }
+  }
+</script>
